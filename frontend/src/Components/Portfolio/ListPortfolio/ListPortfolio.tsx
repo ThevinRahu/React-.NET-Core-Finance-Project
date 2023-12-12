@@ -1,7 +1,7 @@
 import React, { SyntheticEvent } from 'react'
 import CardPortfolio from '../CardPortfolio/CardPortfolio';
 
-type Props = {
+interface Props {
     portfolioValues: string[];
     onPortfolioDelete: (e: SyntheticEvent) => void;
 }
