@@ -3,6 +3,8 @@ import App from "../App";
 import HomePage from "../Pages/HomePage/HomePage";
 import CompanyPage from "../Pages/CompanyPage/CompanyPage";
 import SearchPage from "../Pages/SearchPage/SearchPage";
+import CompanyProfile from "../Components/CompanyProfile/CompanyProfile";
+import IncomeStatement from "../Components/IncomeStatement/IncomeStatement";
 
 export const router = createBrowserRouter([
     {
@@ -14,13 +16,13 @@ export const router = createBrowserRouter([
             {
               path: "company/:ticker",
               element: <CompanyPage />,
-            //   children: [
-            //     { path: "company-profile", element: <CompanyProfile /> },
-            //     { path: "income-statement", element: <IncomeStatement /> },
-            //     { path: "balance-sheet", element: <BalanceSheet /> },
+              children: [
+                { path: "company-profile", element: <CompanyProfile /> },
+                { path: "income-statement", element: <IncomeStatement /> },
+                // { path: "balance-sheet", element: <BalanceSheet /> },
             //     { path: "cashflow-statement", element: <CashflowStatement /> },
             //     { path: "historical-dividend", element: <HistoricalDividend /> },
-            //   ],
+              ],
             }
         ]
     },
