@@ -1,21 +1,23 @@
-import React from "react";
-import { testIncomeStatementData } from "./TestData";
 
-type Props = {};
-const data = testIncomeStatementData;
-type Company = (typeof data)[0];
-const config = [
-  {
-    Lable: "Year",
-    render: (company: Company) => company.acceptedDate,
-  },
-  {
-    Lable: "Cost of Revenue",
-    render: (company: Company) => company.costOfRevenue,
-  },
-];
 
-const Table = ({}: Props) => {
+type Props = {
+  config: any
+  data: any
+};
+// const data = testIncomeStatementData;
+// type Company = (typeof data)[0];
+// const config = [
+//   {
+//     Lable: "Year",
+//     render: (company: Company) => company.acceptedDate,
+//   },
+//   {
+//     Lable: "Cost of Revenue",
+//     render: (company: Company) => company.costOfRevenue,
+//   },
+// ];
+
+const Table = ({data, config}: Props) => {
   const renderedRows = data.map((company: any) => {
     return (
       <tr key={company.cik}>
