@@ -2,10 +2,11 @@ import React from "react";
 import { Outlet } from "react-router";
 
 interface Props {
-    children: React.ReactNode
+    children: React.ReactNode,
+    ticker: string
 }
 
-const CompanyDashboard = ({children}: Props) => {
+const CompanyDashboard = ({children, ticker}: Props) => {
   return (
     
       <div className="relative md:ml-64 bg-blueGray-100 w-full">
@@ -16,7 +17,7 @@ const CompanyDashboard = ({children}: Props) => {
                 {children}
               </div>
               <div className="flex flex-wrap">
-                {<Outlet/>}
+                {<Outlet context={ticker}/>}
               </div>
             
           </div>
