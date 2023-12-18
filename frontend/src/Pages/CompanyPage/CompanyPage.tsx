@@ -44,10 +44,18 @@ const CompanyPage = (props: Props) => {
 
         <SideBar/>
 
-        <CompanyDashboard ticker={ticker!}><Tile title="Company Name" subTitle={company.companyName}/></CompanyDashboard>
+        <CompanyDashboard ticker={ticker!}>
+          <Tile title="Company Name" subTitle={company.companyName}/>
+          <Tile title="Price" subTitle={company.price.toString()}/>
+          <Tile title="Sector" subTitle={company.sector}/>
+          <Tile title="DCF" subTitle={company.dcf.toString()}/>
+          <p className="bg-white shadow rounded text-medium font-medium text-gray-900 p-3 mt-1 m-4">
+              {company.description}
+          </p>
+        </CompanyDashboard>
       </div>
        ):(
-       " Company Not Found"
+       <p>Company Not Found</p>
        )}
     </>
   );

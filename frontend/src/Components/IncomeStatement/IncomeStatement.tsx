@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import Table from "../Table/Table";
 import { CompanyIncomeStatement } from "../../company";
 import { getIncomeStatement } from "../../api";
-// import Spinner from "../Spinners/Spinner";
+import Spinner from "../Spinners/Spinners";
 
 type Props = {};
 
@@ -79,8 +79,8 @@ const IncomeStatement = (props: Props) => {
       {incomeStatement ? (
         <Table config={configs} data={incomeStatement} />
       ) : (
-        // <Spinner />
-        <p></p>
+        <Spinner />
+        // <p></p>
       )}
     </>
   );

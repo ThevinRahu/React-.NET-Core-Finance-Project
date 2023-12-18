@@ -16,7 +16,7 @@ const Card: React.FC<Props> = ({id,searchResults, onPortfolioCreate}: Props) : J
         key={id}
         id={id}>
             {/* <div className='details'> */}
-            <Link to={`/company/${searchResults.symbol}`} className="font-bold text-center text-veryDarkViolet md:text-left">{searchResults.name} -- </Link>
+            <Link to={`/company/${searchResults.symbol}/company-profile`} className="font-bold text-center text-veryDarkViolet md:text-left">{searchResults.name} -- </Link>
             <h2 className="font-bold text-center text-veryDarkViolet md:text-left">{searchResults.symbol} -- </h2>
             <h2 className="font-bold text-center text-veryDarkViolet md:text-left">{searchResults.currency} -- </h2>
             <p className="text-veryDarkBlue">
