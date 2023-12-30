@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Stock;
 using api.Interfaces;
+using api.Mappers;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,25 +19,38 @@ namespace api.Repository
         {
             _context = context; 
         }
-        Task<Stock> IStockRepository.CreateAsync(Stock stockModel)
+        async Task<Stock> IStockRepository.CreateAsync(Stock stockModel)
         {
           
-            throw new NotImplementedException();
+            await _context.Stocks.AddAsync(stockModel);
+            await _context.SaveChangesAsync();
+            return stockModel;
         }
 
-        Task<Stock?> IStockRepository.DeleteAsync(int id)
+        async Task<Stock?> IStockRepository.DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x=>x.Id==id);
+            if (stockModel == null)
+            {
+                return null;
+            }
+
+            _context.Stocks.Remove(stockModel);
+
+            await _context.SaveChangesAsync();
+
+            return stockModel;
         }
 
-        Task<List<Stock>> IStockRepository.GetAllAsync()
+        async Task<List<Stock>> IStockRepository.GetAllAsync()
         {
-            return _context.Stocks.ToListAsync();
+            return await _context.Stocks.ToListAsync();
         }
 
-        Task<Stock?> IStockRepository.GetByIdAsync(int id)
+        async Task<Stock?> IStockRepository.GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var stock = await _context.Stocks.FindAsync(id);
+            return stock;
         }
 
         Task<bool> IStockRepository.StockExists(int id)
@@ -44,9 +58,24 @@ namespace api.Repository
             throw new NotImplementedException();
         }
 
-        Task<Stock?> IStockRepository.UpdateAsync(int id, UpdateStockRequestDto stockDto)
+        async Task<Stock?> IStockRepository.UpdateAsync(int id, UpdateStockRequestDto stockDto)
         {
-            throw new NotImplementedException();
+              var stock =  _context.Stocks.Find(id);
+            // var stockModel = await _stockRepo.UpdateAsync(id, updateDto);
+
+            if (stock == null)
+            {
+                return null;
+            }else{
+                stock.Symbol = stockDto.Symbol;
+                stock.CompanyName = stockDto.CompanyName;
+                stock.Purchase = stockDto.Purchase;
+                stock.LastDiv = stockDto.LastDiv;
+                stock.Industry = stockDto.Industry;
+                stock.MarketCap = stockDto.MarketCap;
+                await _context.SaveChangesAsync();
+                return stock;
+            }  
         }
     }
 }
