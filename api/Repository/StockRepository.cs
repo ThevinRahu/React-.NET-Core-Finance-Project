@@ -55,7 +55,7 @@ namespace api.Repository
 
         Task<bool> IStockRepository.StockExists(int id)
         {
-            throw new NotImplementedException();
+            return _context.Stocks.AnyAsync(s=>s.Id==id);
         }
 
         async Task<Stock?> IStockRepository.UpdateAsync(int id, UpdateStockRequestDto stockDto)
