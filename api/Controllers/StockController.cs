@@ -33,7 +33,7 @@ namespace api.Controllers
             return Ok(stockModel);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var stock = await _stockRepo.GetByIdAsync(id);
@@ -55,7 +55,7 @@ namespace api.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
            if (!ModelState.IsValid)
