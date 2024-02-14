@@ -20,6 +20,12 @@ namespace api.Repository
         {
             _context = context; 
         }
+
+        public async Task<Stock?> GetBySymbolAsync(string symbol)
+        {
+             return await _context.Stocks.FirstOrDefaultAsync(s => s.Symbol == symbol);
+        }
+
         async Task<Stock> IStockRepository.CreateAsync(Stock stockModel)
         {
           
