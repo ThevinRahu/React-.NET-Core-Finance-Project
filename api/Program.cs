@@ -106,6 +106,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(x => x
+     .AllowAnyMethod()
+     .AllowAnyHeader()
+     .AllowCredentials()
+      //.WithOrigins("https://localhost:44351))
+      .SetIsOriginAllowed(origin => true));
+      
 app.UseHttpsRedirection();
 
 app.MapControllers();
