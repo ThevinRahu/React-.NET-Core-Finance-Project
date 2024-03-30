@@ -13,10 +13,10 @@ namespace api.Controllers
 {
     [Route("api/account")]
     [ApiController]
-    public class AccountController: ControllerBase
+    public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly ITokenService _tokenService; 
+        private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signinManager;
 
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
@@ -49,8 +49,12 @@ namespace api.Controllers
                     if (roleResult.Succeeded)
                     {
                         return Ok(
-                           _tokenService.CreateToken(appUser)
-                            
+                            new NewUserDTO
+                            {
+                                UserName = appUser.UserName,
+                                Email = appUser.Email,
+                                Token = _tokenService.CreateToken(appUser)
+                            }
                         );
                     }
                     else
@@ -83,7 +87,14 @@ namespace api.Controllers
 
             if (!result.Succeeded) return Unauthorized("Username not found and/or password incorrect");
 
-            return Ok(_tokenService.CreateToken(user));
+            return Ok(
+                new NewUserDTO
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                }
+            );
         }
     }
 }
