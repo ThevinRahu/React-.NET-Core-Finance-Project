@@ -4,7 +4,7 @@ import { commentGetAPI, commentPostAPI } from "../../Services/CommentService";
 import { toast } from "react-toastify";
 import { CommentGet } from "../../Models/Comment";
 import Spinner from "../Spinners/Spinners";
-//import StockCommentList from "../StockCommentList/StockCommentList";
+import StockCommentList from "../StockCommentList/StockCommentList";
 
 type Props = {
   stockSymbol: string;
@@ -28,6 +28,8 @@ const StockComment = ({ stockSymbol }: Props) => {
       .then((res) => {
         if (res) {
           toast.success("Comment created successfully!");
+          e.content="";
+          e.title="";
           getComments();
         }
       })
@@ -45,7 +47,7 @@ const StockComment = ({ stockSymbol }: Props) => {
   };
   return (
     <div className="flex flex-col">
-      {/* {loading ? <Spinner /> : <StockCommentList comments={comments!} />} */}
+      {loading ? <Spinner /> : <StockCommentList comments={comments!} />}
       <StockCommentForm symbol={stockSymbol} handleComment={handleComment} />
     </div>
   );
