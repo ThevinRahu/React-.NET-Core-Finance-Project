@@ -26,6 +26,9 @@ namespace api.Controllers
             _stockRepo = stockRepo;
         }
 
+        [HttpGet("test")]
+        public IActionResult Get() => Ok("Hello from Lambda!");
+        
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject queryObject)
