@@ -1,49 +1,49 @@
-name: Deploy .NET API to Lambda
+name: Finance-Project CI/CD
 
 on:
   push:
-    branches: [main]
     paths:
       - "api/**"
+    branches: ["main"]
 
 env:
-  FUNCTION_NAME: Finance-Project
-  
+  FUNCTION_NAME: "Finance-Project"
+
 defaults:
   run:
-    working-directory: ./api
-    
+    working-directory: ./api  
+
 permissions:
   id-token: write
   contents: read
-  
+
 jobs:
   pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🧰 Setup .NET SDK
+      - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
 
       - name: Install dependencies
         run: dotnet restore
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
-      - run: dotnet publish -c Release -o ./publish
 
-      # - name: Test with the dotnet CLI
-      #   run: dotnet test --no-build --verbosity normal
+      - name: Publish
+        run: dotnet publish -c Release -o ./publish --no-build
 
       - name: Create Zip File
         run: |
           DATE=$(date +'%Y-%m-%d')
-          cd ./publish && zip -r "../function_$DATE.zip" ./*
+          cd ./publish
+          zip -r "../function_$DATE.zip" ./*
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
@@ -54,10 +54,9 @@ jobs:
       - name: Push to S3
         run: |
           DATE=$(date +'%Y-%m-%d')
-          aws s3 cp "function_$DATE.zip" s3://finance-release
+          aws s3 cp "function_$DATE.zip" s3://your-finance-project-release-bucket
 
       - name: Update Lambda
         run: |
           DATE=$(date +'%Y-%m-%d')
-          aws lambda update-function-code --function-name ${{env.FUNCTION_NAME}} --s3-bucket finance-release --s3-key "function_$DATE.zip"
-
+          aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --s3-bucket your-finance-project-release-bucket --s3-key "function_$DATE.zip"
