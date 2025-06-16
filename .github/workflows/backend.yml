@@ -36,8 +36,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Publish
-        run: dotnet publish -c Release -o ./publish --no-build
+      - name: Publish for Lambda
+        run: dotnet publish -c Release -o ./publish --no-build /p:GenerateRuntimeConfigurationFiles=true
 
       - name: Create Zip File
         run: |
