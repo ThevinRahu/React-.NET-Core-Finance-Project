@@ -8,6 +8,11 @@ using api.Interfaces;
 using api.Models;
 using api.Repository;
 using api.Service;
+using Amazon.Lambda.AspNetCoreServer;
+using Amazon.Lambda.Core;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,4 +128,49 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+// Add Lambda logging
+app.UseLambdaLogger();
+
+// Explicit Main method for Lambda
+public partial class Program
+{
+    // This method is required for Lambda to find the entry point
+    public static void Main(string[] args)
+    {
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME")))
+        {
+            // Running locally
+            CreateHostBuilder(args).Build().Run();
+        }
+        else
+        {
+            // Running in Lambda
+            var lambdaEntry = new LambdaEntryPoint();
+            var functionHandler = (Func<APIGatewayHttpApiV2ProxyRequest, ILambdaContext, Task<APIGatewayHttpApiV2ProxyResponse>>)lambdaEntry.FunctionHandlerAsync;
+            LambdaBootstrapBuilder.Create(functionHandler, new DefaultLambdaJsonSerializer())
+                .Build()
+                .RunAsync()
+                .GetAwaiter()
+                .GetResult();
+        }
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+}
+
+// Lambda entry point class
+public class LambdaEntryPoint : APIGatewayHttpApiV2ProxyFunction
+{
+    protected override void Init(IWebHostBuilder builder)
+    {
+        builder
+            .UseContentRoot(Directory.GetCurrentDirectory())
+            .UseStartup<Startup>()
+            .UseLambdaServer();
+    }
+}
