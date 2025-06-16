@@ -105,7 +105,7 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 // 🟢 Required for Lambda HTTP API Gateway integration
-builder.Services.AddAWSLambdaHosting(Amazon.Lambda.AspNetCoreServer.Hosting.LambdaEventSource.HttpApi);
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 var app = builder.Build();
 
