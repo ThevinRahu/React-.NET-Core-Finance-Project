@@ -54,9 +54,9 @@ jobs:
       - name: Push to S3
         run: |
           DATE=$(date +'%Y-%m-%d')
-          aws s3 cp "function_$DATE.zip" s3://your-finance-project-release-bucket
+          aws s3 cp "function_$DATE.zip" s3://finance-release
 
       - name: Update Lambda
         run: |
           DATE=$(date +'%Y-%m-%d')
-          aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --s3-bucket your-finance-project-release-bucket --s3-key "function_$DATE.zip"
+          aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --s3-bucket finance-release --s3-key "function_$DATE.zip"
