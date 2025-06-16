@@ -1,0 +1,63 @@
+name: Deploy .NET API to Lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+
+env:
+  FUNCTION_NAME: Finance-Project
+  
+defaults:
+  run:
+    working-directory: ./api
+    
+permissions:
+  id-token: write
+  contents: read
+  
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - run: dotnet publish -c Release -o ./publish
+
+      # - name: Test with the dotnet CLI
+      #   run: dotnet test --no-build --verbosity normal
+
+      - name: Create Zip File
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          cd ./publish && zip -r "../function_$DATE.zip" ./*
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::407215534303:role/GitHubActionAssumeRole
+          aws-region: ap-southeast-2
+
+      - name: Push to S3
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          aws s3 cp "function_$DATE.zip" s3://finance-release
+
+      - name: Update Lambda
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          aws lambda update-function-code --function-name ${{env.FUNCTION_NAME}} --s3-bucket finance-release --s3-key "function_$DATE.zip"
+
