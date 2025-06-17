@@ -9,13 +9,14 @@ using api.Models;
 using api.Repository;
 using api.Service;
 using System.Text;
+using Amazon.Lambda.AspNetCoreServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add AWS Lambda support - use one of these options:
 
 // Option 1: Minimal Lambda configuration (recommended)
-builder.Services.AddAWSLambdaHosting(Amazon.Lambda.AspNetCoreServer.LambdaEventSource.HttpApi);
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 // Option 2: Alternative if above doesn't work
 // builder.Services.AddAWSLambdaHosting(options => 
