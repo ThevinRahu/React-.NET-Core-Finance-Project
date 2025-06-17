@@ -8,13 +8,20 @@ using api.Interfaces;
 using api.Models;
 using api.Repository;
 using api.Service;
-using Amazon.Lambda.AspNetCoreServer;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add AWS Lambda support
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+// Add AWS Lambda support - use one of these options:
+
+// Option 1: Minimal Lambda configuration (recommended)
+builder.Services.AddAWSLambdaHosting(Amazon.Lambda.AspNetCoreServer.LambdaEventSource.HttpApi);
+
+// Option 2: Alternative if above doesn't work
+// builder.Services.AddAWSLambdaHosting(options => 
+// {
+//     options.UseLambdaServer();
+// });
 
 // Configure Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -28,12 +35,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDBContext>();
 
 // Configure JWT Authentication
-var jwtKey = builder.Configuration["JWT:SigningKey"] 
-    ?? throw new InvalidOperationException("JWT Signing Key not configured");
-var jwtIssuer = builder.Configuration["JWT:Issuer"] 
-    ?? throw new InvalidOperationException("JWT Issuer not configured");
-var jwtAudience = builder.Configuration["JWT:Audience"] 
-    ?? throw new InvalidOperationException("JWT Audience not configured");
+var jwtConfig = builder.Configuration.GetSection("JWT");
+var jwtKey = jwtConfig["SigningKey"] ?? throw new InvalidOperationException("JWT SigningKey not configured");
+var jwtIssuer = jwtConfig["Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
+var jwtAudience = jwtConfig["Audience"] ?? throw new InvalidOperationException("JWT Audience not configured");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -63,7 +68,7 @@ builder.Services.AddScoped<IFMPService, FMPService>();
 builder.Services.AddHttpClient<IFMPService, FMPService>();
 
 // Configure Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string not configured");
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(connectionString));
