@@ -10,9 +10,6 @@ using api.Repository;
 using api.Service;
 using Amazon.Lambda.AspNetCoreServer;
 using Amazon.Lambda.Core;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,13 +33,12 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidIssuer = builder.Configuration["JWT:Issuer"] ?? throw new InvalidOperationException("JWT:Issuer not configured"),
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:Audience"],
+        ValidAudience = builder.Configuration["JWT:Audience"] ?? throw new InvalidOperationException("JWT:Audience not configured"),
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
-        )
+            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"] ?? throw new InvalidOperationException("JWT:SigningKey not configured"))
     };
 });
 
@@ -70,7 +66,7 @@ builder.Services.AddCors(options =>
 // 🌐 Database connection
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Database connection string not configured"));
 });
 
 // 🔄 JSON config
@@ -128,49 +124,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Add Lambda logging
-app.UseLambdaLogger();
+app.Run();
 
-// Explicit Main method for Lambda
+// This partial class is needed for Lambda entry point
 public partial class Program
 {
-    // This method is required for Lambda to find the entry point
-    public static void Main(string[] args)
-    {
-        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME")))
-        {
-            // Running locally
-            CreateHostBuilder(args).Build().Run();
-        }
-        else
-        {
-            // Running in Lambda
-            var lambdaEntry = new LambdaEntryPoint();
-            var functionHandler = (Func<APIGatewayHttpApiV2ProxyRequest, ILambdaContext, Task<APIGatewayHttpApiV2ProxyResponse>>)lambdaEntry.FunctionHandlerAsync;
-            LambdaBootstrapBuilder.Create(functionHandler, new DefaultLambdaJsonSerializer())
-                .Build()
-                .RunAsync()
-                .GetAwaiter()
-                .GetResult();
-        }
-    }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
-}
-
-// Lambda entry point class
-public class LambdaEntryPoint : APIGatewayHttpApiV2ProxyFunction
-{
-    protected override void Init(IWebHostBuilder builder)
-    {
-        builder
-            .UseContentRoot(Directory.GetCurrentDirectory())
-            .UseStartup<Startup>()
-            .UseLambdaServer();
-    }
+    protected Program() {} // Required for Lambda
 }
